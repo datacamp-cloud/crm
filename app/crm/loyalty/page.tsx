@@ -24,6 +24,13 @@ interface Client {
 }
 
 export default function LoyaltyPage() {
+
+  const [data, setData] = React.useState<{
+    clients: Client[];
+    sortedClients: Client[];
+    pointsData: any[];
+    tierData: any[];
+  } | null>(null);
   const [clients, setClients] = React.useState<Client[]>([]);
   const [sortedClients, setSortedClients] = React.useState<Client[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
