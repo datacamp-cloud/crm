@@ -44,7 +44,7 @@ rootClients.forEach(client => {
 // Create relationship data for display
 const relationshipData = clients.map(client => {
   const referredIds = referralMap.get(client.id) || [];
-  const referredClients = referredIds.map(id => clients.find(c => c.id === id));
+  const referredClients = referredIds.map((id: string) => clients.find(c => c.id === id));
   const commissions = Math.floor(Math.random() * 5000);
   
   return {
@@ -131,7 +131,7 @@ export default function SponsorPage() {
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
         const affiliate = row.original;
         const initials = getInitials(affiliate.name);
         
@@ -152,7 +152,7 @@ export default function SponsorPage() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) =>{
         const status = row.original.status || "Inactive";
         return (
           <Badge className={getStatusColor(status)}>
@@ -164,7 +164,7 @@ export default function SponsorPage() {
     {
       id: "commissions",
       header: "Commissions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
         const affiliate = row.original;
         const commissions = affiliate.commissions || 0;
         
@@ -178,10 +178,10 @@ export default function SponsorPage() {
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
         return (
           <Button variant="ghost" size="sm" className="flex items-center gap-1">
-            <span>View</span>
+            <span>Voir plus</span>
             <ChevronRight className="h-4 w-4" />
           </Button>
         );

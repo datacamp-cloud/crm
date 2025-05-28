@@ -22,7 +22,7 @@ export default function SegmentsPage() {
     {
       accessorKey: "criteria",
       header: "Criteria",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) =>{
         const criteria = row.getValue("criteria") as string;
         return (
           <Badge variant="outline">{criteria}</Badge>
@@ -32,8 +32,8 @@ export default function SegmentsPage() {
     {
       accessorKey: "count",
       header: "Clients",
-      cell: ({ row }) => {
-        const count = row.getValue("count") as number;
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
+        const count = Number(row.getValue("count"));
         return (
           <div className="flex items-center">
             <Users className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -45,13 +45,13 @@ export default function SegmentsPage() {
     {
       accessorKey: "createdAt",
       header: "Created",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
         return formatDate(row.getValue("createdAt"));
       },
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
         const segment = row.original;
         return (
           <Button variant="ghost" size="sm">

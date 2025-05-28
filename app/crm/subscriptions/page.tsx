@@ -21,7 +21,7 @@ export default function SubscriptionsPage() {
     {
       accessorKey: "type",
       header: "Type",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {getValue: (key: string) => string } }) => {
         const type = row.getValue("type") as string;
         return (
           <Badge variant="outline">{type}</Badge>
@@ -31,15 +31,15 @@ export default function SubscriptionsPage() {
     {
       accessorKey: "price",
       header: "Price",
-      cell: ({ row }) => {
-        const price = row.getValue("price") as number;
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
+        const price = Number(row.getValue("price"));
         return formatCurrency(price);
       },
     },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {getValue: (key: string) => string } }) => {
         const status = row.getValue("status") as string;
         return (
           <Badge
@@ -58,7 +58,7 @@ export default function SubscriptionsPage() {
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
         const subscription = row.original;
         return (
           <Button

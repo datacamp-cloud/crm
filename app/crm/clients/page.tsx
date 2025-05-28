@@ -49,7 +49,7 @@ export default function ClientsPage() {
     {
       accessorKey: "type",
       header: "Type",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
         const type = row.getValue("type") as string;
         return getClientTypeBadge(type);
       },
@@ -64,7 +64,7 @@ export default function ClientsPage() {
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
         const client = row.original;
         return (
           <div className="flex items-center gap-2">

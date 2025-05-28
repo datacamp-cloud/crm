@@ -36,7 +36,7 @@ rootClients.forEach(client => {
 // Create relationship data for display
 const relationshipData = clients.map(client => {
   const referredIds = referralMap.get(client.id) || [];
-  const referredClients = referredIds.map(id => clients.find(c => c.id === id));
+  const referredClients = referredIds.map((id: string) => clients.find(c => c.id === id));
   const commissions = Math.floor(Math.random() * 5000);
   
   return {

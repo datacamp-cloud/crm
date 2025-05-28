@@ -169,7 +169,7 @@ export default function ClientViewPage() {
               <CardHeader>
                 <CardTitle>Contact Information</CardTitle>
                 <CardDescription>
-                  Client's primary contact details
+                  Client&apos;s primary contact details
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

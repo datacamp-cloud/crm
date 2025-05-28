@@ -52,7 +52,7 @@ export default function LoyaltyPage() {
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
         const client = row.original;
         const initials = client.name
           .split(" ")
@@ -73,7 +73,7 @@ export default function LoyaltyPage() {
     {
       accessorKey: "tier",
       header: "Tier",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
         const tier = row.getValue("tier") as string;
         const color = tier === 'Gold' ? 'bg-yellow-500' : tier === 'Silver' ? 'bg-gray-400' : 'bg-amber-700';
         
@@ -87,8 +87,8 @@ export default function LoyaltyPage() {
     {
       accessorKey: "points",
       header: "Points",
-      cell: ({ row }) => {
-        const points = row.getValue("points") as number;
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
+        const points = Number(row.getValue("points"));
         const previousPoints = points - Math.floor(Math.random() * 200);
         const isUp = points > previousPoints;
         
@@ -106,7 +106,7 @@ export default function LoyaltyPage() {
     {
       accessorKey: "lastActivity",
       header: "Last Activity",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
         const date = new Date(row.getValue("lastActivity"));
         return date.toLocaleDateString();
       },
