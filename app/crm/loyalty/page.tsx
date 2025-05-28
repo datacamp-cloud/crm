@@ -11,55 +11,83 @@ import { Award, ChevronDown, ChevronUp, Gift, Plus, Star, Users } from "lucide-r
 import { DataTable } from "@/components/data-table/data-table";
 import { generateClients } from "@/lib/data-utils";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+// import { Client } from "@/app/types"; 
 
-// Generate some clients with loyalty information
-const clients = generateClients(25).map(client => ({
-  ...client,
-  points: Math.floor(Math.random() * 5000),
-  tier: Math.random() > 0.7 ? 'Gold' : Math.random() > 0.4 ? 'Silver' : 'Bronze',
-  lastActivity: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(),
-}));
 
-// Sort clients by points in descending order
-const sortedClients = [...clients].sort((a, b) => b.points - a.points);
-
-// Generate data for charts
-const pointsData = [
-  { month: 'Jan', points: 1200 },
-  { month: 'Feb', points: 1900 },
-  { month: 'Mar', points: 1500 },
-  { month: 'Apr', points: 2400 },
-  { month: 'May', points: 1800 },
-  { month: 'Jun', points: 2800 },
-  { month: 'Jul', points: 3200 },
-  { month: 'Aug', points: 2700 },
-  { month: 'Sep', points: 3500 },
-  { month: 'Oct', points: 3900 },
-  { month: 'Nov', points: 3300 },
-  { month: 'Dec', points: 4100 },
-];
-
-const tierData = [
-  { name: 'Bronze', value: clients.filter(c => c.tier === 'Bronze').length },
-  { name: 'Silver', value: clients.filter(c => c.tier === 'Silver').length },
-  { name: 'Gold', value: clients.filter(c => c.tier === 'Gold').length },
-];
-
-const COLORS = ['#B87333', '#C0C0C0', '#FFD700'];
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  points: number;
+  tier: "Bronze" | "Silver" | "Gold";
+  lastActivity: string;
+}
 
 export default function LoyaltyPage() {
+  const [clients, setClients] = React.useState<Client[]>([]);
+  const [sortedClients, setSortedClients] = React.useState<Client[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  // Chart data
+  const [pointsData] = React.useState([
+    { month: "Jan", points: 1200 },
+    { month: "Feb", points: 1900 },
+    { month: "Mar", points: 1500 },
+    { month: "Apr", points: 2400 },
+    { month: "May", points: 1800 },
+    { month: "Jun", points: 2800 },
+    { month: "Jul", points: 3200 },
+    { month: "Aug", points: 2700 },
+    { month: "Sep", points: 3500 },
+    { month: "Oct", points: 3900 },
+    { month: "Nov", points: 3300 },
+    { month: "Dec", points: 4100 },
+  ]);
+
+  const [tierData, setTierData] = React.useState<{ name: string; value: number }[]>([]);
+
+  React.useEffect(() => {
+    // Simulate data fetching
+    const generateData = () => {
+      try {
+        const generatedClients = generateClients(25).map((client) => ({
+          ...client,
+          points: Math.floor(Math.random() * 5000),
+          tier: (Math.random() > 0.7 ? "Gold" : Math.random() > 0.4 ? "Silver" : "Bronze") as "Bronze" | "Silver" | "Gold",
+          lastActivity: new Date(
+            Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        }));
+
+        setClients(generatedClients);
+        setSortedClients([...generatedClients].sort((a, b) => b.points - a.points));
+        setTierData([
+          { name: "Bronze", value: generatedClients.filter((c) => c.tier === "Bronze").length },
+          { name: "Silver", value: generatedClients.filter((c) => c.tier === "Silver").length },
+          { name: "Gold", value: generatedClients.filter((c) => c.tier === "Gold").length },
+        ]);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error generating data:", error);
+        setIsLoading(false);
+      }
+    };
+
+    generateData();
+  }, []);
+
   const clientColumns = [
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }: { row: {original: any, getValue: (key: string) => string } }) => {
+      cell: ({ row }: { row: { original: Client; getValue: (key: string) => string } }) => {
         const client = row.original;
         const initials = client.name
           .split(" ")
-          .map((n: string) => n[0])
+          .map((n) => n[0])
           .join("")
           .toUpperCase();
-          
+
         return (
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
@@ -75,13 +103,10 @@ export default function LoyaltyPage() {
       header: "Tier",
       cell: ({ row }: { row: { getValue: (key: string) => string } }) => {
         const tier = row.getValue("tier") as string;
-        const color = tier === 'Gold' ? 'bg-yellow-500' : tier === 'Silver' ? 'bg-gray-400' : 'bg-amber-700';
-        
-        return (
-          <Badge className={color}>
-            {tier}
-          </Badge>
-        );
+        const color =
+          tier === "Gold" ? "bg-yellow-500" : tier === "Silver" ? "bg-gray-400" : "bg-amber-700";
+
+        return <Badge className={color}>{tier}</Badge>;
       },
     },
     {
@@ -91,11 +116,11 @@ export default function LoyaltyPage() {
         const points = Number(row.getValue("points"));
         const previousPoints = points - Math.floor(Math.random() * 200);
         const isUp = points > previousPoints;
-        
+
         return (
           <div className="flex items-center gap-1">
             <span className="font-medium">{points}</span>
-            <span className={`flex items-center text-xs ${isUp ? 'text-green-500' : 'text-red-500'}`}>
+            <span className={`flex items-center text-xs ${isUp ? "text-green-500" : "text-red-500"}`}>
               {isUp ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
               {Math.abs(points - previousPoints)}
             </span>
@@ -123,9 +148,9 @@ export default function LoyaltyPage() {
           "10% discount",
           "Free product",
           "Early access",
-          "Double points"
+          "Double points",
         ];
-        
+
         return rewards[Math.floor(Math.random() * rewards.length)];
       },
     },
@@ -142,13 +167,10 @@ export default function LoyaltyPage() {
       cell: () => {
         const tiers = ["Bronze", "Silver", "Gold"];
         const tier = tiers[Math.floor(Math.random() * tiers.length)];
-        const color = tier === 'Gold' ? 'bg-yellow-500' : tier === 'Silver' ? 'bg-gray-400' : 'bg-amber-700';
-        
-        return (
-          <Badge className={color}>
-            {tier}
-          </Badge>
-        );
+        const color =
+          tier === "Gold" ? "bg-yellow-500" : tier === "Silver" ? "bg-gray-400" : "bg-amber-700";
+
+        return <Badge className={color}>{tier}</Badge>;
       },
     },
     {
@@ -164,14 +186,20 @@ export default function LoyaltyPage() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-screen">
+        <div>Loading loyalty program data...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Loyalty Program</h1>
-          <p className="text-muted-foreground">
-            Manage client loyalty rewards and tiers
-          </p>
+          <p className="text-muted-foreground">Manage client loyalty rewards and tiers</p>
         </div>
         <Button className="flex items-center gap-1">
           <Plus className="h-4 w-4" />
@@ -182,67 +210,48 @@ export default function LoyaltyPage() {
       <div className="grid gap-6 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Loyalty Points
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Loyalty Points</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {clients.reduce((acc, client) => acc + client.points, 0).toLocaleString()}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Points across all clients
-            </p>
+            <p className="text-xs text-muted-foreground">Points across all clients</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Gold Tier Clients
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Gold Tier Clients</CardTitle>
             <Award className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {clients.filter(client => client.tier === 'Gold').length}
+              {clients.filter((client) => client.tier === "Gold").length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Clients in highest tier
-            </p>
+            <p className="text-xs text-muted-foreground">Clients in highest tier</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Rewards
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Active Rewards</CardTitle>
             <Gift className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              Available rewards
-            </p>
+            <p className="text-xs text-muted-foreground">Available rewards</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Average Points
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Average Points</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Math.round(
-                clients.reduce((acc, client) => acc + client.points, 0) /
-                clients.length
-              )}
+              {Math.round(clients.reduce((acc, client) => acc + client.points, 0) / clients.length)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Points per client
-            </p>
+            <p className="text-xs text-muted-foreground">Points per client</p>
           </CardContent>
         </Card>
       </div>
@@ -251,9 +260,7 @@ export default function LoyaltyPage() {
         <Card>
           <CardHeader>
             <CardTitle>Points Overview</CardTitle>
-            <CardDescription>
-              Loyalty points earned over time
-            </CardDescription>
+            <CardDescription>Loyalty points earned over time</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -281,9 +288,7 @@ export default function LoyaltyPage() {
         <Card>
           <CardHeader>
             <CardTitle>Tier Distribution</CardTitle>
-            <CardDescription>
-              Distribution of clients across loyalty tiers
-            </CardDescription>
+            <CardDescription>Distribution of clients across loyalty tiers</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-80">
@@ -321,12 +326,15 @@ export default function LoyaltyPage() {
           <Card>
             <CardHeader>
               <CardTitle>Top Loyalty Clients</CardTitle>
-              <CardDescription>
-                Clients with the highest loyalty points
-              </CardDescription>
+              <CardDescription>Clients with the highest loyalty points</CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTable columns={clientColumns} data={sortedClients.slice(0, 10)} searchKey="name" searchPlaceholder="Search clients..." />
+              <DataTable
+                columns={clientColumns}
+                data={sortedClients.slice(0, 10)}
+                searchKey="name"
+                searchPlaceholder="Search clients..."
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -335,12 +343,15 @@ export default function LoyaltyPage() {
           <Card>
             <CardHeader>
               <CardTitle>Available Rewards</CardTitle>
-              <CardDescription>
-                Manage rewards that clients can redeem
-              </CardDescription>
+              <CardDescription>Manage rewards that clients can redeem</CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTable columns={rewardColumns} data={Array(8).fill({})} searchKey="name" searchPlaceholder="Search rewards..." />
+              <DataTable
+                columns={rewardColumns}
+                data={Array(8).fill({})}
+                searchKey="name"
+                searchPlaceholder="Search rewards..."
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -349,9 +360,7 @@ export default function LoyaltyPage() {
           <Card>
             <CardHeader>
               <CardTitle>Loyalty Tier Requirements</CardTitle>
-              <CardDescription>
-                Points needed to reach each tier
-              </CardDescription>
+              <CardDescription>Points needed to reach each tier</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-8">
